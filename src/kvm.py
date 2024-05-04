@@ -1,23 +1,46 @@
 #!/bin/python3
 import RPi.GPIO as GPIO
 import time
+import sys
 
-#GPIO Basic initialization
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
+G_PIN = 27;
+
+def init():
+    #GPIO Basic initialization
+    GPIO.setmode(GPIO.BCM);
+    GPIO.setwarnings(False);
+    #Initialize your pin
+    GPIO.setup(G_PIN,GPIO.OUT);
+    return;
 
 
-G_PIN = 17
-#Initialize your pin
-GPIO.setup(G_PIN,GPIO.OUT)
+def GPIO_PRESS(time_in_seconds):
+    """
+    Press the button for <time_in_seconds> on demand.
+    Exit gracefully (must release when interrupted)
+    """
+    try:
+        #Turn on the LED
+        GPIO.output(G_PIN,1);
+        print("pressed");
+        #Wait <time_in_seconds> seconds
+        time.sleep(time_in_seconds);
+    finally:
+        #Turn off the LED
+        GPIO.output(G_PIN,0);
+        print("released");
+        return;
 
-#Turn on the LED
-print("LED on")
-GPIO.output(G_PIN,1)
 
-#Wait 3s
-time.sleep(3)
+if __name__ == "__main__":
+    if len(sys.argv) != 2 or sys.argv[1] not in ["on", "off"]:
+        print("Usage: ./<thisScript> <on | off>");
+        exit(1);
 
-#Turn off the LED
-print("LED off")
-GPIO.output(G_PIN,0)
+    init();
+    if sys.argv[1] == "on":
+        print("power on")
+        GPIO_PRESS(2);
+    elif sys.argv[1] == "off":
+        print("power off")
+        GPIO_PRESS(6);
